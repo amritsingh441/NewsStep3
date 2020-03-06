@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stackroute.newz.model.News;
@@ -29,16 +30,17 @@ import com.stackroute.newz.util.exception.NewsNotExistsException;
  * 
  * Please note that the default path to use this controller should be "/api/v1/news"
  */
-
+@RestController
 public class NewsController {
 
 	/*
 	 * Autowiring should be implemented for the NewsService. Please note that we
 	 * should not create any object using the new keyword
 	 */
-	
-	
-	
+	@Autowired
+	NewsService newsService;
+
+
 	/*
 	 * Define a handler method which will get us all news elements.
 	 * 
@@ -51,11 +53,14 @@ public class NewsController {
 	 * This handler method should map to the URL "/api/v1/news" using HTTP GET
 	 * method.
 	 */
-	
+	@GetMapping("/api/v1/news")
+	public ResponseEntity<List<News>> getAllNews (){
+		return new ResponseEntity<>(newsService.getAllNews(),HttpStatus.OK);
+	}
 
-	
-	
-	
+
+
+
 	/*
 	 * Define a handler method which will get us the news by a newsId.
 	 * 
@@ -68,10 +73,23 @@ public class NewsController {
 	 * This handler method should map to the URL "/api/v1/news/{newsId}" using HTTP GET
 	 * method, where "newsId" should be replaced by a valid newsId without {}
 	 */
-	
-	
-	
-	
+	@GetMapping("/api/v1/news/{newsId}")
+	public ResponseEntity<News> getNewsById (@PathVariable("newsId") int newsId){
+
+		try {
+			News news = newsService.getNews(newsId);
+			if(news!=null) {
+				return new ResponseEntity<>(news,HttpStatus.OK);
+			}
+		} catch (NewsNotExistsException e) {
+			e.getMessage();
+		}
+
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
+
+
+
 
 	/*
 	 * Define a handler method which will create a news by reading the Serialized
@@ -85,11 +103,21 @@ public class NewsController {
 	 * This handler method should map to the URL "/api/v1/news" using HTTP POST
 	 * method".
 	 */
-	
-	
-	
-	
-	
+	@PostMapping("/api/v1/news")
+	public ResponseEntity<News> addNews (@RequestBody News news){
+
+		try {
+			newsService.addNews(news);
+			return new ResponseEntity<>(HttpStatus.CREATED);
+		} catch (NewsAlreadyExistsException e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(HttpStatus.CONFLICT);
+	}
+
+
+
+
 	/*
 	 * Define a handler method which will update a specific news by reading the
 	 * Serialized object from request body and save the updated news details in
@@ -103,10 +131,21 @@ public class NewsController {
 	 * This handler method should map to the URL "/api/v1/news/{newsId}" using HTTP PUT
 	 * method, where "newsId" should be replaced by a valid newsId without {}
 	 */
+	@PutMapping("/api/v1/news/{newsId}")
+	public ResponseEntity<News> updateNews (@PathVariable int newsId){
 
-	
-	
-	
+		try {
+			News newsObj = newsService.getNews(newsId);
+			newsService.updateNews(newsObj);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (NewsNotExistsException e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
+
+
+
 
 	/*
 	 * Define a handler method which will delete a news from the database.
@@ -118,8 +157,18 @@ public class NewsController {
 	 * This handler method should map to the URL "/api/v1/news/{newsId}" using HTTP
 	 * Delete method" where "newsId" should be replaced by a valid newsId without {}
 	 */
-	
-	
-	
+	@DeleteMapping("/api/v1/news/{newsId}")
+	public ResponseEntity<News> deleteNews (@PathVariable int newsId){
+
+		try {
+			newsService.deleteNews(newsId);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (NewsNotExistsException e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
+
+
 
 }

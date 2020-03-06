@@ -21,20 +21,27 @@ import com.stackroute.newz.util.exception.NewsNotExistsException;
  * 
  * */
 
+@Service
 public class NewsServiceImpl implements NewsService {
 
 	/*
 	 * Autowiring should be implemented for the NewsRepository.
 	 */
-	
+	@Autowired
+	NewsRepository newsRepo;
 
 	/*
 	 * Add a new news. Throw NewsAlreadyExistsException if the news with specified
 	 * newsId already exists.
 	 */
 	public News addNews(News news) throws NewsAlreadyExistsException {
+		News newsObj = newsRepo.getOne(news.getNewsId());
+		if(newsObj!=null) {
+			throw new NewsAlreadyExistsException();
+		}else {
+			return newsRepo.save(news);
+		}
 		
-		return null;
 	}
 
 	/*
@@ -43,7 +50,13 @@ public class NewsServiceImpl implements NewsService {
 	 */
 	public News getNews(int newsId) throws NewsNotExistsException {
 		
-		return null;
+		Optional<News> newsObj = newsRepo.findById(newsId);
+		if(newsObj.isPresent()) {
+			return newsObj.get();
+		}else {
+			throw new NewsNotExistsException();
+		}
+		
 	}
 
 	/*
@@ -51,7 +64,7 @@ public class NewsServiceImpl implements NewsService {
 	 */
 	public List<News> getAllNews() {
 
-		return null;
+		return newsRepo.findAll();
 	}
 
 	
@@ -60,8 +73,12 @@ public class NewsServiceImpl implements NewsService {
 	 * news with specified newsId does not exist.
 	 */
 	public News updateNews(News news) throws NewsNotExistsException {
-		
-		return null;
+		News newsObj = newsRepo.getOne(news.getNewsId());
+		if(newsObj!=null) {
+			return newsRepo.saveAndFlush(news);
+		}else {
+			throw new NewsNotExistsException();
+		}
 	}
 
 	/*
@@ -69,8 +86,13 @@ public class NewsServiceImpl implements NewsService {
 	 * news with specified newsId does not exist.
 	 */
 	public void deleteNews(int newsId) throws NewsNotExistsException {
-
-
+		News newsObj = newsRepo.getOne(newsId);
+		if(newsObj!=null) {
+			newsRepo.deleteById(newsId);
+		}else {
+			throw new NewsNotExistsException();
+		}
+		
 	}
 
 }

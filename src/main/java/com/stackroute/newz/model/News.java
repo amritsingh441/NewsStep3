@@ -5,9 +5,12 @@ import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.OnDelete;
@@ -26,7 +29,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * If it finds any, then it will begin the process of looking through that particular 
  * Java object to recreate it as a table in your database.
  */
-
+@Entity
 public class News {
 
 	/*
@@ -43,16 +46,41 @@ public class News {
 	 * Please add @JsonSerialize(using = ToStringSerializer.class) for this field
 	 */
 	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int newsId;
+	private String title;
+	private String author;
+	private String description;
+	@JsonSerialize(using = ToStringSerializer.class)
+	private LocalDateTime publishedAt;
+	private String content;
+	private String url;
+	private String urlToImage;
+	@ManyToOne
+	@JsonIgnore
+	private UserProfile user;
+	@OneToOne
+	@JsonIgnore
+	private Reminder reminder;
 	
-	
-	
+
 	public News(int newsId, String title, String author, String description, LocalDateTime publishedAt, String content,
 			String url, String urlToImage, UserProfile user, Reminder reminder) {
-		
-		
+		super();
+		this.newsId = newsId;
+		this.title = title;
+		this.author = author;
+		this.description = description;
+		this.publishedAt = publishedAt;
+		this.content = content;
+		this.url = url;
+		this.urlToImage = urlToImage;
+		this.user = user;
+		this.reminder = reminder;
 	}
-	
-	
+
+
 	/**
 	 * @return the newsID
 	 */
@@ -66,101 +94,106 @@ public class News {
 	 * @return the title
 	 */
 	public String getTitle() {
-		return null;
+		return title;
 	}
 	/**
 	 * @return the newsID
 	 */
 	public int getNewsId() {
-		return 0;
+		return newsId;
 		
 	}
 	/**
 	 * @param newsID the newsID to set
 	 */
 	public void setNewsId(int newsId) {
-		
+		this.newsId = newsId;
 	}
 	/**
 	 * @param title the title to set
 	 */
 	public void setTitle(String title) {
-		
+		this.title=title;
 	}
 	/**
 	 * @return the url
 	 */
 	public String getUrl() {
-		return null;
+		return url;
 	}
 	/**
 	 * @param url the url to set
 	 */
 	public void setUrl(String url) {
-		
-	}
+		this.url=url;
+	} 
 	/**
 	 * @return the urlToImage
 	 */
 	public String getUrlToImage() {
-		return null;
+		return urlToImage;
 	}
 	/**
 	 * @param urlToImage the urlToImage to set
 	 */
 	public void setUrlToImage(String urlToImage) {
-		
+		this.urlToImage=urlToImage;
 	}
 	/**
 	 * @return the author
 	 */
 	public String getAuthor() {
-		return null;
+		return author;
 	}
 	/**
 	 * @param author the author to set
 	 */
 	public void setAuthor(String author) {
-		
+		this.author=author;
 	}
 	/**
 	 * @return the description
 	 */
 	public String getDescription() {
-		return null;
+		return description;
 	}
 	/**
 	 * @param description the description to set
 	 */
 	public void setDescription(String description) {
-		
+		this.description=description;
 	}
 	/**
 	 * @return the publishedAt
 	 */
 	public LocalDateTime getPublishedAt() {
-		return null;
+		return publishedAt;
 	}
 	/**
 	 * @param publishedAt the publishedAt to set
 	 */
 	public void setPublishedAt(LocalDateTime publishedAt) {
-		
+		this.publishedAt=publishedAt;
 	}
 	/**
 	 * @return the content
 	 */
 	public String getContent() {
-		return null;
+		return content;
 	}
 	/**
 	 * @param content the content to set
 	 */
 	public void setContent(String content) {
-		
+		this.content=content;
 	}
-	
 
-	
+
+	@Override
+	public String toString() {
+		return "News [newsId=" + newsId + ", title=" + title + ", author=" + author + ", description=" + description
+				+ ", publishedAt=" + publishedAt + ", content=" + content + ", url=" + url + ", urlToImage="
+				+ urlToImage + ", user=" + user + ", reminder=" + reminder + "]";
+	}
 	
 }

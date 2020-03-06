@@ -4,10 +4,13 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -19,7 +22,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * If it finds any, then it will begin the process of looking through that particular 
  * Java object to recreate it as a table in your database.
  */
-
+@Entity
 public class Reminder {
 	/*
 	 * This class should have three fields (reminderId,schedule,news). Out of these
@@ -33,44 +36,67 @@ public class Reminder {
 	 * The data type for schedule field should be LocalDateTime. Please
 	 * add @JsonSerialize(using = ToStringSerializer.class) for this field
 	 */
-
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int reminderId;
+	@JsonSerialize(using = ToStringSerializer.class)
+	private LocalDateTime schedule;
+	@OneToOne
+	@JsonIgnore
+	private News news;
+	
 	public Reminder(int reminderId, LocalDateTime schedule, News news) {
-
+		super();
+		this.reminderId = reminderId;
+		this.schedule = schedule;
+		this.news = news;
 	}
 
 	public Reminder() {
 
 	}
-
-	
+	/**
+	 * @return the reminderId
+	 */
 	public int getReminderId() {
-		return 0;
+		return reminderId;
 	}
-
-	
+	/**
+	 * @param reminderId the reminderId to set
+	 */
 	public void setReminderId(int reminderId) {
-
+		this.reminderId = reminderId;
 	}
-
-
-	public int getNewsId() {
-		return 0;
-	}
-
-	public void setNewsId(int newsId) {
-		
-	}
-
-	
+	/**
+	 * @return the schedule
+	 */
 	public LocalDateTime getSchedule() {
-		return null;
+		return schedule;
 	}
-
-	
+	/**
+	 * @param schedule the schedule to set
+	 */
 	public void setSchedule(LocalDateTime schedule) {
-		
+		this.schedule = schedule;
 	}
-
-	
+	/**
+	 * @return the news
+	 */
+	public News getNews() {
+		return news;
+	}
+	/**
+	 * @param news the news to set
+	 */
+	public void setNews(News news) {
+		this.news = news;
+	}
+	/**
+	 * To String method
+	 */
+	@Override
+	public String toString() {
+		return "Reminder [reminderId=" + reminderId + ", schedule=" + schedule + ", news=" + news + "]";
+	}
 
 }

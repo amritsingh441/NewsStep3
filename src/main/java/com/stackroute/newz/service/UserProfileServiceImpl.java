@@ -1,14 +1,10 @@
 package com.stackroute.newz.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.stackroute.newz.model.UserProfile;
 import com.stackroute.newz.repository.UserProfileRepository;
 import com.stackroute.newz.util.exception.UserProfileAlreadyExistsException;
@@ -28,6 +24,8 @@ public class UserProfileServiceImpl implements UserProfileService {
 	/*
 	 * Autowiring should be implemented for the UserProfileRepository.
 	 */
+	@Autowired
+	UserProfileRepository userProfileRepository;
 	
 
 
@@ -37,7 +35,12 @@ public class UserProfileServiceImpl implements UserProfileService {
 	 */
 	public UserProfile registerUser(UserProfile user) throws UserProfileAlreadyExistsException {
 
-		return null;
+		Optional<UserProfile> userProfileObj = userProfileRepository.findById(user.getUserId());
+		if(userProfileObj.isEmpty()) {
+			return userProfileRepository.save(user);
+		}else {
+			throw new UserProfileAlreadyExistsException();
+		}
 	}
 
 	/*
@@ -46,8 +49,14 @@ public class UserProfileServiceImpl implements UserProfileService {
 	 */
 	public UserProfile updateUserProfile(UserProfile user, String userId) 
 			throws UserProfileNotExistsException {
+		
+		UserProfile userProfileObj = userProfileRepository.getOne(userId);
+		if(userProfileObj!=null) {
+			return userProfileRepository.saveAndFlush(userProfileObj);
+		}else {
+			throw new UserProfileNotExistsException();
+		}
 
-		return null;
 	}
 
 	
@@ -56,7 +65,12 @@ public class UserProfileServiceImpl implements UserProfileService {
 	 * the userProfile with specified userId does not exist.
 	 */
 	public void deleteUserProfile(String userId) throws UserProfileNotExistsException {
-		
+		UserProfile userProfileObj = 	userProfileRepository.getOne(userId);
+		if(userProfileObj!=null) {
+			userProfileRepository.deleteById(userId);
+		}else {
+			throw new UserProfileNotExistsException();
+		}
 		
 	}
 	
@@ -66,8 +80,13 @@ public class UserProfileServiceImpl implements UserProfileService {
 	 * if the userProfile with specified userId does not exist.
 	 */
 	public UserProfile getUserProfile(String userId) throws UserProfileNotExistsException {
+		Optional<UserProfile> userProfileObj = userProfileRepository.findById(userId);
 		
-		return null;
+		if(userProfileObj.isPresent()) {
+			return userProfileObj.get();
+		}else {
+			throw new UserProfileNotExistsException();
+		}
 	}
 
 	/*
@@ -75,7 +94,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 	 */
 	public List<UserProfile> getAllUserProfiles() {
 		
-		return null;
+		return userProfileRepository.findAll();
 	}
 
 }

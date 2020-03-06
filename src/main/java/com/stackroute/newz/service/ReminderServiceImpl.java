@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.stackroute.newz.model.Reminder;
+import com.stackroute.newz.repository.NewsRepository;
 import com.stackroute.newz.repository.ReminderRepository;
 import com.stackroute.newz.service.ReminderService;
 import com.stackroute.newz.util.exception.ReminderNotExistsException;
@@ -18,19 +19,21 @@ import com.stackroute.newz.util.exception.ReminderNotExistsException;
  * clarifying it's role.
  * 
  * */
+@Service
 public class ReminderServiceImpl implements ReminderService {
 
 	/*
 	 * Autowiring should be implemented for the ReminderRepository.
 	 */
-	
+	@Autowired
+	ReminderRepository reminderRepo;
 
 	/*
 	 * Add a new reminder.
 	 */
 	public Reminder addReminder(Reminder reminder) {
 
-		return null;
+		return reminderRepo.save(reminder);
 	}
 
 	/*
@@ -38,8 +41,12 @@ public class ReminderServiceImpl implements ReminderService {
 	 * if the reminder with specified reminderId does not exist.
 	 */
 	public Reminder updateReminder(Reminder reminder) throws ReminderNotExistsException {
-
-		return null;
+		Reminder reminderObj = 	reminderRepo.getOne(reminder.getReminderId());
+		if(reminderObj!=null) {
+			return reminderRepo.saveAndFlush(reminder);
+		}else {
+			throw new ReminderNotExistsException();
+		}
 
 	}
 
@@ -48,8 +55,12 @@ public class ReminderServiceImpl implements ReminderService {
 	 * the reminder with specified reminderId does not exist.
 	 */
 	public void deleteReminder(int reminderId) throws ReminderNotExistsException {
-
-	
+		Reminder reminderObj = 	reminderRepo.getOne(reminderId);
+		if(reminderObj!=null) {
+			reminderRepo.deleteById(reminderId);
+		}else {
+			throw new ReminderNotExistsException();
+		}
 	}
 
 	/*
@@ -57,15 +68,19 @@ public class ReminderServiceImpl implements ReminderService {
 	 * if the reminder with specified reminderId does not exist.
 	 */
 	public Reminder getReminder(int reminderId) throws ReminderNotExistsException {
-
-		return null;
+		Optional<Reminder> remObj = reminderRepo.findById(reminderId);
+		if(remObj.isPresent()) {
+			return remObj.get();
+		}else {
+			throw new ReminderNotExistsException();
+		}
 	}
 
 	/*
 	 * Retrieve all existing reminders
 	 */
 	public List<Reminder> getAllReminders() {
-		return null;
+		return reminderRepo.findAll();
 	}
 
 }

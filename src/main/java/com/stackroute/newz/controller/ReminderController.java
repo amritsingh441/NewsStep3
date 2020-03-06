@@ -14,8 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.stackroute.newz.model.News;
 import com.stackroute.newz.model.Reminder;
+import com.stackroute.newz.service.NewsService;
 import com.stackroute.newz.service.ReminderService;
+import com.stackroute.newz.util.exception.NewsAlreadyExistsException;
+import com.stackroute.newz.util.exception.NewsNotExistsException;
 import com.stackroute.newz.util.exception.ReminderNotExistsException;
 
 /*
@@ -28,14 +32,16 @@ import com.stackroute.newz.util.exception.ReminderNotExistsException;
  * 
  * Please note that the default path to use this controller should be "/api/v1/reminder"
  */
-
+@RestController
 public class ReminderController {
 
 	/*
 	 * Autowiring should be implemented for the ReminderService. Please note that we
 	 * should not create any object using the new keyword
 	 */
-	
+	@Autowired
+	ReminderService remService;
+
 
 	/*
 	 * Define a handler method which will get us all reminders.
@@ -48,7 +54,11 @@ public class ReminderController {
 	 * method.
 	 */
 	
-	
+	@GetMapping("/api/v1/reminder")
+	public ResponseEntity<List<Reminder>> getAllReminders (){
+		remService.getAllReminders();
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 	
 	
 
@@ -65,6 +75,19 @@ public class ReminderController {
 	 * method, where "reminderId" should be replaced by a valid reminderId without {}
 	 */
 	
+	@GetMapping("/api/v1/reminder/{reminderId}")
+	public ResponseEntity<Reminder> getRemindersById (@PathVariable("reminderId") int reminderId){
+
+		try {
+			Reminder remObj = remService.getReminder(reminderId);
+			if(remObj!=null) {
+				return new ResponseEntity<>(remObj,HttpStatus.OK);
+			}
+		} catch (ReminderNotExistsException e) {
+			e.getMessage();
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
 	
 	
 
@@ -81,7 +104,19 @@ public class ReminderController {
 	 * This handler method should map to the URL "/api/v1/reminder" using HTTP POST
 	 * method".
 	 */
-	
+	@PostMapping("/api/v1/reminder")
+	public ResponseEntity<News> addReminders(@RequestBody Reminder reminder ){
+		try {
+			Reminder remObj = remService.getReminder(reminder.getReminderId());
+			if(remObj!=null) {
+				return new ResponseEntity<>(HttpStatus.CONFLICT);
+			}
+		} catch (ReminderNotExistsException e) {
+			e.printStackTrace();
+		}
+		remService.addReminder(reminder);
+		return new ResponseEntity<>(HttpStatus.CREATED);	
+	}
 	
 	
 	
@@ -99,6 +134,17 @@ public class ReminderController {
 	 * This handler method should map to the URL "/api/v1/reminder/{reminderId}" using HTTP PUT
 	 * method, where "reminderId" should be replaced by a valid reminderId without {}
 	 */
+	@PutMapping("/api/v1/reminder/{reminderId}")
+	public ResponseEntity<?> updateReminders(@PathVariable int reminderId ){
+		try {
+			Reminder remUpdated = remService.updateReminder(remService.getReminder(reminderId));
+			if(remUpdated!=null)
+				return new ResponseEntity<>(HttpStatus.OK);
+		} catch (ReminderNotExistsException e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);	
+	}
 	
 	
 	
@@ -114,7 +160,16 @@ public class ReminderController {
 	 * This handler method should map to the URL "/api/v1/reminder/{reminderId}" using HTTP
 	 * Delete method" where "reminderId" should be replaced by a valid reminderId without {}
 	 */
-	
+	@DeleteMapping("/api/v1/reminder/{reminderId}")
+	public ResponseEntity<?> deleteReminders(@PathVariable int reminderId ){
+		try {
+			remService.deleteReminder(reminderId);
+				return new ResponseEntity<>(HttpStatus.OK);
+		} catch (ReminderNotExistsException e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);	
+	}
 	
 	
 
